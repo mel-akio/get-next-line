@@ -1,52 +1,62 @@
 #include <sys/types.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "libft/libft.h"
 
-#define BUF_SIZE 1000
+#define BUF_SIZE 4
+
+size_t search_nl(char *str)
+{
+	size_t i;
+
+	i = 0;
+	while (str[i] == '\n')
+		i++;
+	while (str[i] != '\n' && str[i] != '\0')
+		i++;
+	return i;
+}
 
 int get_next_line(const int fd, char **line)
 {
-	int j;
-	static char *res;
-	static int l = 0;
-	int ret;
-	int size;
+	static char *temp = NULL;
+	size_t len;
+	char *end;
+	int size = BUF_SIZE;
 
-	ret = 0;
-	j = 0;
-	if (!(l))
-		res = malloc(1000);
-	while (size = read(fd, *line, BUF_SIZE))
+	end = ft_memalloc(BUF_SIZE + 1);
+	if (!temp)
+		temp = ft_memalloc(BUF_SIZE + 1);
+	while ((!(ft_strchr(temp, '\n'))))
 	{
-		while (l < size)
-			res[j++] = (*line)[l++];
-			l = 0;
+		size = read(fd, end, BUF_SIZE);
+		if (size != BUF_SIZE)
+		{
+			end = ft_strndup(end, size);
+			temp = ft_strjoin(temp, end);
+			break;
+		}
+		temp = ft_strjoin(temp, end);
 	}
-	while (res[l] == '\n')
-		l++;
-	while (res[l] != '\n' && res[l] != '\0')
-	{
-		putchar(res[l++]);
-		ret = 1;
-	}
-	return ret;
+	len = search_nl(temp);
+	*line = ft_strndup(temp, len);
+	temp = ft_strsub(temp, len + 1, ft_strlen(temp) - len);
+	ft_strdel(&end);
+	return (ft_strlen(*line));
 }
 
 int main()
 {
 	int fd;
 	int len;
-	char **line;
+	int i = 0;
+	char *line;
 	line = malloc(100);
-	line[0] = malloc(1000);
 
 	fd = open("sample", O_RDONLY, BUF_SIZE);
-
-	while (get_next_line(fd, line))
-		;
-	free(line);
-	free(line[0]);
+	while (get_next_line(fd, &line))
+	{
+		printf("ligne %d : %s\n", i++, line);
+		
+	}
+		ft_strdel(&line);
 }
