@@ -1,62 +1,66 @@
-#include <sys/types.h>
-#include <fcntl.h>
-#include "libft/libft.h"
+/* ************************************************************************** */
+/*                                                          LE - /            */
+/*                                                              /             */
+/*   get_next_line.c                                  .::    .:/ .      .::   */
+/*                                                 +:+:+   +:    +:  +:+:+    */
+/*   By: mel-akio <mel-akio@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*                                                 #+#   #+    #+    #+#      */
+/*   Created: 2017/12/18 19:59:16 by mel-akio     #+#   ##    ##    #+#       */
+/*   Updated: 2017/12/18 20:40:47 by mel-akio    ###    #+. /#+    ###.fr     */
+/*                                                         /                  */
+/*                                                        /                   */
+/* ************************************************************************** */
 
-#define BUF_SIZE 4
+#include "get_next_line.h"
 
-size_t search_nl(char *str)
+size_t	search_nl(char *str)
 {
 	size_t i;
 
 	i = 0;
-	while (str[i] == '\n')
-		i++;
+	if(str[0] == '\n')
+		return 1;
 	while (str[i] != '\n' && str[i] != '\0')
 		i++;
-	return i;
+	return i + 1;
 }
 
-int get_next_line(const int fd, char **line)
+
+int	get_next_line(const int fd, char **line)
 {
 	static char *temp = NULL;
 	size_t len;
 	char *end;
-	int size = BUF_SIZE;
+	char *swap = NULL;
+	int size = BUFF_SIZE;
 
-	end = ft_memalloc(BUF_SIZE + 1);
+	end = ft_memalloc(BUFF_SIZE + 1);
 	if (!temp)
-		temp = ft_memalloc(BUF_SIZE + 1);
+		temp = ft_memalloc(BUFF_SIZE + 1);
 	while ((!(ft_strchr(temp, '\n'))))
 	{
-		size = read(fd, end, BUF_SIZE);
-		if (size != BUF_SIZE)
+		size = read(fd, end, BUFF_SIZE);
+		if (size != BUFF_SIZE)
 		{
+			swap = end;
 			end = ft_strndup(end, size);
+			ft_strdel(&swap);
+			swap = temp;
 			temp = ft_strjoin(temp, end);
+			ft_strdel(&swap);
 			break;
 		}
+		swap = temp;
 		temp = ft_strjoin(temp, end);
+		ft_strdel(&swap);
 	}
+	ft_strdel(&end);
 	len = search_nl(temp);
 	*line = ft_strndup(temp, len);
-	temp = ft_strsub(temp, len + 1, ft_strlen(temp) - len);
-	ft_strdel(&end);
-	return (ft_strlen(*line));
-}
-
-int main()
-{
-	int fd;
-	int len;
-	int i = 0;
-	char *line;
-	line = malloc(100);
-
-	fd = open("sample", O_RDONLY, BUF_SIZE);
-	while (get_next_line(fd, &line))
-	{
-		printf("ligne %d : %s\n", i++, line);
-		
-	}
-		ft_strdel(&line);
+	swap = temp;
+	temp = ft_strsub(temp, len, ft_strlen(temp));
+	ft_strdel(&swap);
+	len = ft_strlen(*line);
+	(*line)[ft_strlen(*line) - 1] = '\0';
+	return (len);
 }
