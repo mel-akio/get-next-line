@@ -13,54 +13,42 @@
 
 #include "get_next_line.h"
 
-size_t	search_nl(char *str)
+size_t search_nl(char *str)
 {
 	size_t i;
 
 	i = 0;
-	if(str[0] == '\n')
+	if (str[0] == '\n')
 		return 1;
 	while (str[i] != '\n' && str[i] != '\0')
 		i++;
 	return i + 1;
 }
 
-
-int	get_next_line(const int fd, char **line)
+int get_next_line(const int fd, char **line)
 {
-	static char *temp = NULL;
+	static char *temp = "";
 	size_t len;
 	char *end;
-	char *swap = NULL;
-	int size = BUFF_SIZE;
+	int size;
 
-	end = ft_memalloc(BUFF_SIZE + 1);
-	if (!temp)
-		temp = ft_memalloc(BUFF_SIZE + 1);
 	while ((!(ft_strchr(temp, '\n'))))
 	{
+		end = ft_strnew(BUFF_SIZE);
 		size = read(fd, end, BUFF_SIZE);
 		if (size != BUFF_SIZE)
 		{
-			swap = end;
-			end = ft_strndup(end, size);
-			ft_strdel(&swap);
-			swap = temp;
-			temp = ft_strjoin(temp, end);
-			ft_strdel(&swap);
+			end = ft_strsub_free(end, 0, size);
+			temp = ft_strjoin_free(temp, end, 3);
 			break;
 		}
-		swap = temp;
-		temp = ft_strjoin(temp, end);
-		ft_strdel(&swap);
+		temp = ft_strjoin_free(temp, end, 2);
 	}
-	ft_strdel(&end);
 	len = search_nl(temp);
-	*line = ft_strndup(temp, len);
-	swap = temp;
-	temp = ft_strsub(temp, len, ft_strlen(temp));
-	ft_strdel(&swap);
+	*line = ft_strsub(temp, 0, len);
+	temp = ft_strsub_free(temp, len, ft_strlen(temp));
 	len = ft_strlen(*line);
-	(*line)[ft_strlen(*line) - 1] = '\0';
+	if ((*line)[ft_strlen(*line) - 1] == '\n')
+		(*line)[ft_strlen(*line) - 1] = '\0';
 	return (len);
 }
