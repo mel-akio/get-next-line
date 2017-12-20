@@ -6,7 +6,7 @@
 /*   By: mel-akio <mel-akio@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2017/12/18 20:02:15 by mel-akio     #+#   ##    ##    #+#       */
-/*   Updated: 2017/12/18 20:32:12 by mel-akio    ###    #+. /#+    ###.fr     */
+/*   Updated: 2017/12/20 14:19:38 by mel-akio    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -16,17 +16,18 @@
 int main()
 {
 	int fd;
+	int fd2;
 	int len;
 	int i = 0;
 	char *line;
 	line = malloc(100);
 
-	fd = open("sample", O_RDONLY, BUFF_SIZE);
-	while (get_next_line(fd, &line))
+	fd2 = open("sample", O_RDONLY, BUFF_SIZE);
+	fd = open("one_big_fat_line.txt", O_RDONLY, BUFF_SIZE);
+
+	while (get_next_line(fd2, &line))
 	{
-		ft_putnbr(++i);
-		ft_putchar(' ');
-		ft_putendl(line);	
+		ft_putendl(line);
 	}
-		ft_strdel(&line);
+	ft_strdel(&line);
 }

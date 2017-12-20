@@ -6,49 +6,66 @@
 /*   By: mel-akio <mel-akio@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2017/12/18 19:59:16 by mel-akio     #+#   ##    ##    #+#       */
-/*   Updated: 2017/12/18 20:40:47 by mel-akio    ###    #+. /#+    ###.fr     */
+/*   Updated: 2017/12/20 14:20:01 by mel-akio    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t search_nl(char *str)
+static size_t		s_nl(char *str)
 {
-	size_t i;
+	size_t			i;
 
 	i = 0;
 	if (str[0] == '\n')
-		return 1;
+		return (1);
 	while (str[i] != '\n' && str[i] != '\0')
 		i++;
-	return i + 1;
+	return (i + 1);
 }
 
-int get_next_line(const int fd, char **line)
+static int			process(char **temp, char end[BUFF_SIZE + 1], int fd)
 {
-	static char *temp = "";
-	size_t len;
-	char *end;
-	int size;
+	int				size;
 
-	while ((!(ft_strchr(temp, '\n'))))
+	while (!(ft_strchr(temp[fd], '\n')))
 	{
-		end = ft_strnew(BUFF_SIZE);
 		size = read(fd, end, BUFF_SIZE);
+		if (size == -1)
+			return (-1);
 		if (size != BUFF_SIZE)
 		{
-			end = ft_strsub_free(end, 0, size);
-			temp = ft_strjoin_free(temp, end, 3);
-			break;
+			end[size] = '\0';
+			temp[fd] = ft_strjoin_free(temp[fd], ft_strdup(end));
+			break ;
 		}
-		temp = ft_strjoin_free(temp, end, 2);
+		temp[fd] = ft_strjoin_free(temp[fd], ft_strdup(end));
 	}
-	len = search_nl(temp);
-	*line = ft_strsub(temp, 0, len);
-	temp = ft_strsub_free(temp, len, ft_strlen(temp));
-	len = ft_strlen(*line);
+	return (size);
+}
+
+int					get_next_line(const int fd, char **line)
+{
+	static char		*temp[8192];
+	char			end[BUFF_SIZE + 1];
+	int				size;
+
+	ft_bzero(end, BUFF_SIZE + 1);
+	if (fd < 0 || fd > 8192)
+		return (-1);
+	if (!temp[fd])
+		if (!(temp[fd] = ft_strnew(BUFF_SIZE)))
+			return (0);
+	size = process(temp, end, fd);
+	if (size == -1)
+		return (size);
+	*line = ft_strsub(temp[fd], 0, s_nl(temp[fd]));
+	temp[fd] = ft_strsub_free(temp[fd], s_nl(temp[fd]), ft_strlen(temp[fd]));
+	size = ft_strlen(*line);
 	if ((*line)[ft_strlen(*line) - 1] == '\n')
 		(*line)[ft_strlen(*line) - 1] = '\0';
-	return (len);
+	if (size)
+		return (1);
+	return (0);
 }
