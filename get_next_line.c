@@ -6,7 +6,7 @@
 /*   By: mel-akio <mel-akio@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2017/12/18 19:59:16 by mel-akio     #+#   ##    ##    #+#       */
-/*   Updated: 2017/12/20 14:20:01 by mel-akio    ###    #+. /#+    ###.fr     */
+/*   Updated: 2017/12/23 16:22:34 by mel-akio    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -47,12 +47,12 @@ static int			process(char **temp, char end[BUFF_SIZE + 1], int fd)
 
 int					get_next_line(const int fd, char **line)
 {
-	static char		*temp[8192];
+	static char		*temp[9999];
 	char			end[BUFF_SIZE + 1];
 	int				size;
 
 	ft_bzero(end, BUFF_SIZE + 1);
-	if (fd < 0 || fd > 8192)
+	if (fd < 0 || fd > 9999)
 		return (-1);
 	if (!temp[fd])
 		if (!(temp[fd] = ft_strnew(BUFF_SIZE)))
@@ -62,10 +62,11 @@ int					get_next_line(const int fd, char **line)
 		return (size);
 	*line = ft_strsub(temp[fd], 0, s_nl(temp[fd]));
 	temp[fd] = ft_strsub_free(temp[fd], s_nl(temp[fd]), ft_strlen(temp[fd]));
-	size = ft_strlen(*line);
+	if (*line[0])
+		size = 1;
+	else
+		size = 0;
 	if ((*line)[ft_strlen(*line) - 1] == '\n')
 		(*line)[ft_strlen(*line) - 1] = '\0';
-	if (size)
-		return (1);
-	return (0);
+	return (size);
 }
